@@ -46,7 +46,7 @@ const Dashboard = () => {
     });
   };
 
-  const handleStartCalculation = () => {
+  const handleStartCalculation = async () => {
     if (!uploadedFile) {
       toast({
         title: "No file uploaded",
@@ -61,6 +61,34 @@ const Dashboard = () => {
       title: "Calculation started",
       description: "Processing your groundwater data through pollution analysis algorithms.",
     });
+
+    // Send file to backend API
+    const formData = new FormData();
+    formData.append("file", uploadedFile);
+
+    try {
+      const response = await fetch("http://localhost:5000/process-csv", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) throw new Error("Failed to process file");
+      const result = await response.json();
+
+      // Adapt result to your ResultsDisplay format if needed
+      setResults(result);
+      setState("results");
+      toast({
+        title: "Analysis complete",
+        description: "Heavy metal pollution indices have been calculated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to process file.",
+        variant: "destructive",
+      });
+      setState("upload");
+    }
   };
 
   const handleCalculationComplete = (calculationResults: CalculationResults) => {

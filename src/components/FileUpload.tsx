@@ -36,6 +36,7 @@ const FileUpload = ({ onFileUploaded, isProcessing }: FileUploadProps) => {
           if (prev >= 100) {
             clearInterval(interval);
             onFileUploaded(file);
+            handleUpload(file); // Call handleUpload here
             return 100;
           }
           return prev + 10;
@@ -57,6 +58,19 @@ const FileUpload = ({ onFileUploaded, isProcessing }: FileUploadProps) => {
     setUploadedFile(null);
     setError("");
     setUploadProgress(0);
+  };
+
+  const handleUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('http://localhost:5000/process-csv', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const result = await response.json();
+    // Use result in your app (e.g., display in ResultsDisplay)
   };
 
   return (
